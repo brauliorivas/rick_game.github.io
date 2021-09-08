@@ -1,7 +1,9 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const URL = 'https://www.xtrafondos.com/wallpapers/rick-y-morty-en-universo-de-dragon-ball-6401.jpg';
-const URL_PLAYER = 'https://www.clipartmax.com/png/full/210-2105236_four-eyes-rick-rick-and-morty-sprite-morty.png';
+const ANIMATEDPLAYER = 'https://www.spriters-resource.com/resources/sheets/77/80159.png?updated=1477720942';
+const RIGHTANM = '../src/image.png';
+const longAnm = 50;
 
 const loadImage = (url) => {
     return new Promise((resolve, reject) => {
@@ -21,28 +23,43 @@ const background = {
     imagen: null,
 }
 
-const player = {
+let animatedPlayer = {
     imagen: null,
-    posx: null,
-    posy: null, 
+    flipped: null,
+    posx: 0,
+    posy: null,
+    width: 35,
+    height: 55,
+    sourcewidth: 120,
+    sourceheight: 150,
 }
 
-var keys = {
+const keys = {
     UP : 38,
     DOWN : 40,
     LEFT : 37,
     RIGHT : 39
 };
 
+const coordinatesInitMovement = [5, 741];
+const coordinatesUpMovement = [[5, 1074], [138, 1074], [267, 1074], [398, 1074]];
+const coordinatesDownMovement = [[5, 741], [136, 739], [266, 739], [397, 739]];
+const coordinatesLeftMovement = [[5, 907], [136, 907], [267, 907], [397, 907]];
+const coordinatesRightMovement = [[296, 908], [428, 908], [557, 908], [688, 908]];
+
 loadElement(URL).then((response) => {
     background.imagen = response;
 })
 
-loadElement(URL_PLAYER).then((response) => {
-    player.imagen = response;
+loadElement(ANIMATEDPLAYER).then((response) => {
+    animatedPlayer.imagen = response;
 })
 
-dpi = window.devicePixelRatio;
+loadElement(RIGHTANM).then((response) => {
+    animatedPlayer.flipped = response;
+})
+
+const dpi = window.devicePixelRatio;
 function fix_dpi() {
 //create a style object that returns width and height
     let style = {
@@ -61,38 +78,60 @@ function fix_dpi() {
 const drawBG = () => {
     ctx.drawImage(background.imagen, 0, 0, canvas.width,canvas.height);
 }
-const drawPlayer = (posx, posy) => {
-    ctx.drawImage(player.imagen, posx, posy, 35, 50);
-}
-setTimeout(() => {
-    fix_dpi();
-    drawBG();
-    player.posx = 0;
-    player.posy = canvas.height - 50;
-    drawPlayer(player.posx, player.posy);
-    document.addEventListener("keydown", dibujar)
-}, 0)
 
 const dibujar = (event) => {
     drawBG();
     switch (event.keyCode) {
         case keys.UP:
-            player.posy = player.posy - 5;
-            drawPlayer(player.posx, player.posy);
+            drawDirection(animatedPlayer, 2, 'arriba');
         break;
         case keys.DOWN:
-            player.posy = player.posy + 5;
-            drawPlayer(player.posx, player.posy);
+            drawDirection(animatedPlayer, 2, 'abajo');
         break;
         case keys.LEFT:
-            player.posx = player.posx - 5;
-            drawPlayer(player.posx, player.posy);
+            drawDirection(animatedPlayer, 2, 'izquierda');
         break;
         case keys.RIGHT:
-            player.posx = player.posx + 5;
-            drawPlayer(player.posx, player.posy);
+            drawDirection(animatedPlayer, 2, 'derecha');
         break;
         default:
-            drawPlayer(player.posx, player.posy);   
+            restore(animatedPlayer, 0);
     }
 }
+
+const restore = (object, i) => {
+    setTimeout(() => {
+        drawBG();
+        ctx.drawImage(object.imagen, coordinatesInitMovement[0], coordinatesInitMovement[1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+    }, i * longAnm + longAnm);
+}
+
+const drawDirection = (object, step, direction) => {
+    for ( let i = 0 ; i < 4 ; i++) {
+        setTimeout(() => {
+            drawBG();
+            if (direction == 'arriba') {  
+                object.posy -= step;
+                ctx.drawImage(object.imagen, coordinatesUpMovement[i][0], coordinatesUpMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+            }  else if (direction == 'abajo') {
+                object.posy += step;
+                ctx.drawImage(object.imagen, coordinatesDownMovement[i][0], coordinatesDownMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+            } else if (direction == 'izquierda') {
+                object.posx -= step;
+                ctx.drawImage(object.imagen, coordinatesLeftMovement[i][0], coordinatesLeftMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+            } else if (direction == 'derecha') {
+                object.posx += step;
+                ctx.drawImage(object.flipped, coordinatesRightMovement[i][0], coordinatesRightMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+            } 
+        }, i * longAnm)
+    }
+    restore(object, 3);
+}
+
+setTimeout(() => {
+    fix_dpi();
+    drawBG();
+    animatedPlayer.posy = canvas.height - animatedPlayer.height;
+    restore(animatedPlayer, 0);
+    document.addEventListener("keydown", dibujar);
+}, 0)
