@@ -3,7 +3,10 @@ const ctx = canvas.getContext('2d');
 const URL = 'https://www.xtrafondos.com/wallpapers/rick-y-morty-en-universo-de-dragon-ball-6401.jpg';
 const ANIMATEDPLAYER = 'https://www.spriters-resource.com/resources/sheets/77/80159.png?updated=1477720942';
 const RIGHTANM = '../src/image.png';
+const WALL = 'https://image.freepik.com/foto-gratis/fondo-pared-ladrillo-textura-negro_53876-63583.jpg';
 const longAnm = 50;
+const columns = 27;
+const rows = 13;
 
 const loadImage = (url) => {
     return new Promise((resolve, reject) => {
@@ -23,13 +26,21 @@ const background = {
     imagen: null,
 }
 
+const obstacle = {
+    imagen: null,
+    width: null,
+    height: null,
+    sourcewidth: 100, 
+    sourceheight: 100,
+}
+
 let animatedPlayer = {
     imagen: null,
     flipped: null,
-    posx: 0,
+    posx: 7,
     posy: null,
-    width: 35,
-    height: 55,
+    width: 30,
+    height: 45,
     sourcewidth: 120,
     sourceheight: 150,
 }
@@ -46,6 +57,7 @@ const coordinatesUpMovement = [[5, 1074], [138, 1074], [267, 1074], [398, 1074]]
 const coordinatesDownMovement = [[5, 741], [136, 739], [266, 739], [397, 739]];
 const coordinatesLeftMovement = [[5, 907], [136, 907], [267, 907], [397, 907]];
 const coordinatesRightMovement = [[296, 908], [428, 908], [557, 908], [688, 908]];
+const coordinatesWalls = [[0, 4], [0, 10], [0, 22], [0, 25], [1, 1], [1, 2], [1, 3], [1, 5], [1, 7], [1, 8], [1, 9], [1, 10], [1, 12], [1, 13], [1, 14], [1, 15], [1, 17], [1, 18], [1, 19], [1, 20], [1, 21], [1, 22], [1, 23], [1, 25], [2, 1], [2, 3], [2, 5], [2, 7], [2, 8], [2, 12], [2, 17], [2, 25], [3, 1], [3, 3], [3, 5], [3, 7], [3, 8], [3, 10], [3, 12], [3, 14], [3, 15], [3, 19], [3, 21], [3, 23], [3, 25], [4, 3], [4, 5], [4, 7], [4, 8], [4, 10], [4, 12], [4, 14], [4, 15], [4, 17], [4, 18], [4, 19], [4, 20], [4, 21], [4, 23], [4, 25], [5, 1], [5, 3], [5, 5], [5, 10], [5, 12], [5, 23], [5, 25], [6, 1], [6, 3], [6, 5], [6, 6], [6, 7], [6, 8], [6, 9], [6, 10], [6, 12], [6, 13], [6, 14], [6, 15], [6, 16], [6, 18], [6, 19], [6, 20], [6, 21], [6, 22], [6, 23], [6, 25], [7, 1], [7, 3], [7, 12], [7, 22], [7, 25], [8, 1], [8, 3], [8, 5], [8, 6], [8, 7], [8, 9], [8, 10], [8, 12], [8, 14], [8, 15], [8, 16], [8, 17], [8, 18], [8, 19], [8, 20], [8, 21], [8, 22], [8, 24], [8, 25], [9, 1], [9, 3], [9, 5], [9, 7], [9, 9], [9, 12], [9, 14], [8, 24], [8, 25], [9, 1], [9, 3], [9, 5], [9, 7], [9, 9], [9, 12], [9, 14], [9, 24], [9, 25], [10, 1], [10, 3], [10, 5], [10, 7], [10, 9], [10, 11], [10, 12], [10, 14], [10, 16], [10, 17], [10, 18], [10, 19], [10, 20], [10, 21], [10, 22], [10, 23], [10, 24],[10, 25], [11, 1], [11, 3], [11, 5], [11, 7], [11, 9], [11, 11], [11, 14], [11, 16], [11, 20], [11, 25], [12, 1], [12, 5], [12, 9], [12, 11], [12, 13], [12, 14], [12, 18], [12, 22]];
 
 loadElement(URL).then((response) => {
     background.imagen = response;
@@ -57,6 +69,10 @@ loadElement(ANIMATEDPLAYER).then((response) => {
 
 loadElement(RIGHTANM).then((response) => {
     animatedPlayer.flipped = response;
+})
+
+loadElement(WALL).then((response) => {
+    obstacle.imagen = response;
 })
 
 const dpi = window.devicePixelRatio;
@@ -76,11 +92,36 @@ function fix_dpi() {
 }
 
 const drawBG = () => {
-    ctx.drawImage(background.imagen, 0, 0, canvas.width,canvas.height);
+    ctx.drawImage(background.imagen, 0, 0, canvas.width, canvas.height);
+}
+
+const drawWalls = (object, posx, posy) => {
+    ctx.drawImage(object.imagen, 0, 0, object.sourcewidth, object.sourceheight, posx, posy, object.width, object.height);
+}
+
+const drawBase = (canvas, object) => {
+    const screenWidth = canvas.width;
+    const startingY = object.height * rows;
+    const fulfill = Math.trunc(screenWidth / object.width );
+    for (let i = 0 ; i <= fulfill ; i++ ) {
+        ctx.drawImage(object.imagen, 0, 0, object.sourcewidth, object.sourceheight, i * object.width, startingY, object.width, object.height);
+    }
+}
+
+const drawObstacles = (canvas, object, array) => {
+    const screenHeight = canvas.height;
+    const screenWidth = canvas.width;
+    const objectWidth = Math.trunc(screenWidth / columns);
+    const objectHeight = Math.trunc(screenHeight / rows);
+    object.width = objectWidth;
+    object.height = objectHeight;
+    for (let i of array) {
+        drawWalls(object, i[1] * object.width, i[0] * object.height);
+    }
 }
 
 const dibujar = (event) => {
-    drawBG();
+    constructLevel();
     switch (event.keyCode) {
         case keys.UP:
             drawDirection(animatedPlayer, 2, 'arriba');
@@ -101,7 +142,7 @@ const dibujar = (event) => {
 
 const restore = (object, i) => {
     setTimeout(() => {
-        drawBG();
+        constructLevel();
         ctx.drawImage(object.imagen, coordinatesInitMovement[0], coordinatesInitMovement[1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
     }, i * longAnm + longAnm);
 }
@@ -109,7 +150,7 @@ const restore = (object, i) => {
 const drawDirection = (object, step, direction) => {
     for ( let i = 0 ; i < 4 ; i++) {
         setTimeout(() => {
-            drawBG();
+            constructLevel();
             if (direction == 'arriba') {  
                 object.posy -= step;
                 ctx.drawImage(object.imagen, coordinatesUpMovement[i][0], coordinatesUpMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
@@ -128,10 +169,16 @@ const drawDirection = (object, step, direction) => {
     restore(object, 3);
 }
 
+const constructLevel = () => {
+    drawBG();
+    drawObstacles(canvas, obstacle, coordinatesWalls);
+    drawBase(canvas, obstacle);
+}
+
 setTimeout(() => {
     fix_dpi();
-    drawBG();
-    animatedPlayer.posy = canvas.height - animatedPlayer.height;
+    constructLevel();
+    animatedPlayer.posy = canvas.height - animatedPlayer.height - 10;
     restore(animatedPlayer, 0);
     document.addEventListener("keydown", dibujar);
 }, 0)
