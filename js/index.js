@@ -171,32 +171,16 @@ const dibujar = (event) => {
     constructLevel();
     switch (event.keyCode) {
         case keys.UP:
-            if (!collide(animatedPlayer, apex, 'up', step)){
-                drawDirection(animatedPlayer, step, 'arriba');
-            } else {
-                restore(animatedPlayer, 0);
-            }
+            drawDirection(animatedPlayer, step, 'arriba');
         break;
         case keys.DOWN:
-            if (!collide(animatedPlayer, apex, 'down', step)) {
-                drawDirection(animatedPlayer, step, 'abajo');
-            } else {
-                restore(animatedPlayer, 0);
-            }
+            drawDirection(animatedPlayer, step, 'abajo');
         break;
         case keys.LEFT: 
-            if (!collide(animatedPlayer, apex, 'left', step)) {
-                drawDirection(animatedPlayer, step, 'izquierda');
-            } else {
-                restore(animatedPlayer, 0);
-            }
+            drawDirection(animatedPlayer, step, 'izquierda');
         break;
         case keys.RIGHT:
-            if (!collide(animatedPlayer, apex, 'right', step)) {
-                drawDirection(animatedPlayer, step, 'derecha');
-            } else {
-                restore(animatedPlayer, 0);
-            }
+            drawDirection(animatedPlayer, step, 'derecha');
         break;
         default:
             restore(animatedPlayer, 0);
@@ -214,18 +198,26 @@ const drawDirection = (object, step, direction) => {
     for ( let i = 0 ; i < 4 ; i++) {
         setTimeout(() => {
             constructLevel();
-            if (direction == 'arriba') {  
-                object.posy -= step;
-                ctx.drawImage(object.imagen, coordinatesUpMovement[i][0], coordinatesUpMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
-            }  else if (direction == 'abajo') {
-                object.posy += step;
-                ctx.drawImage(object.imagen, coordinatesDownMovement[i][0], coordinatesDownMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+            if (direction == 'arriba') {
+                if (!collide(animatedPlayer, apex, 'up', step)) {
+                    object.posy -= step;
+                    ctx.drawImage(object.imagen, coordinatesUpMovement[i][0], coordinatesUpMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+                }
+            } else if (direction == 'abajo') {
+                if (!collide(animatedPlayer, apex, 'down', step)) {
+                    object.posy += step;
+                    ctx.drawImage(object.imagen, coordinatesDownMovement[i][0], coordinatesDownMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+                }
             } else if (direction == 'izquierda') {
-                object.posx -= step;    
-                ctx.drawImage(object.imagen, coordinatesLeftMovement[i][0], coordinatesLeftMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+                if (!collide(animatedPlayer, apex, 'left', step)) {
+                    object.posx -= step;    
+                    ctx.drawImage(object.imagen, coordinatesLeftMovement[i][0], coordinatesLeftMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+                }
             } else if (direction == 'derecha') {
-                object.posx += step;
-                ctx.drawImage(object.flipped, coordinatesRightMovement[i][0], coordinatesRightMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+                if (!collide(animatedPlayer, apex, 'right', step)) {
+                    object.posx += step;
+                    ctx.drawImage(object.flipped, coordinatesRightMovement[i][0], coordinatesRightMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
+                }
             }
             updateApex(animatedPlayer);
         }, i * longAnm)
