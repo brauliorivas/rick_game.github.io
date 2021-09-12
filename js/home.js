@@ -31,15 +31,17 @@ const buildContainer = (array) => {
         table.innerHTML += `
         <div class="player-option">
             <h3>${i[1]}</h3>
+            <p>Origin: ${i[2]}</p>
             <img src="${i[3].src}" width="150px" height="150px"/>
-            <a href="./index.html" class="play" onclick="getValue("${i[1]}")">Play</a>
+            <span class="play" onclick="getValuePlayer('${i[1]}')">Play</span>
         </div class="player-option">
         `
     }
 }
 
-const getValue = (name) => {
-    response = name;
+const getValuePlayer = (name) => {
+    localStorage.setItem("playerselection", name);
+    window.location.href = './game.html';
 }
 
 getCharacters(API, 0)

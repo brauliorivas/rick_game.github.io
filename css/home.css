@@ -38,27 +38,28 @@ section p {
     width: 300px; 
     text-align: center;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
-    height: 330px;
+    height: 350px;
     border-radius: 10px;
 }
 
 .player-option h3 {
     font-size: 25px;
+    margin-bottom: 0px;
 }
 
 .player-option img {
     align-self: center;
 }
 
-.player-option a {
+.player-option span {
+    margin-top: 15px;
     text-decoration: none;
     align-self: center;
-    margin-top: 8%;
     color: black;
     font-weight: bolder;
     width: 100px;
     border: 2px solid black;
     border-radius: 15px;
     padding: 20px 10px 20px;
-    background-color: yellow;;
+    background-color: yellow;
 }
