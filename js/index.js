@@ -4,6 +4,7 @@ const URL = 'https://www.xtrafondos.com/wallpapers/rick-y-morty-en-universo-de-d
 const ANIMATEDPLAYER = 'https://www.spriters-resource.com/resources/sheets/77/80159.png?updated=1477720942';
 const RIGHTANM = '../src/image.png';
 const WALL = 'https://image.freepik.com/foto-gratis/fondo-pared-ladrillo-textura-negro_53876-63583.jpg';
+const morty = 'https://www.spriters-resource.com/resources/sheets/72/75538.png?updated=1460968102;'
 const longAnm = 50;
 const columns = 27;
 const rows = 13;
@@ -53,6 +54,18 @@ let animatedPlayer = {
     sourceheight: 150,
 }
 
+let mortyPlayer = {
+    posx: null,
+    posy: null,
+    imagen: null,
+    ximage: 22,
+    yimage: 678,
+    width: 94,
+    height: 122,
+    finalheight: 35,
+    finalwidth: 27,
+}
+
 const keys = {
     UP : 38,
     DOWN : 40,
@@ -74,6 +87,10 @@ loadElement(RIGHTANM).then((response) => {
 
 loadElement(WALL).then((response) => {
     obstacle.imagen = response;
+})
+
+loadElement(morty).then((response) => {
+    mortyPlayer.imagen = response;
 })
 
 const dpi = window.devicePixelRatio;
@@ -129,6 +146,16 @@ const updateApex = (object) => {
         x: object.posx,
         y: object.posy + object.height
     }
+}
+
+const checkOutside = (object, step, direction) => {
+    let outside = false;
+    if ((object.posx - step) < 0 && direction == 'left') {
+        outside = true;
+    } else if ((object.posy - step) < 0 && direction == 'up') {
+        outside = true;
+    }
+    return !outside;
 }
 
 const collide = (object, array, direction, step) => {
@@ -199,7 +226,7 @@ const drawDirection = (object, step, direction) => {
         setTimeout(() => {
             constructLevel();
             if (direction == 'arriba') {
-                if (!collide(animatedPlayer, apex, 'up', step)) {
+                if (!collide(animatedPlayer, apex, 'up', step) && checkOutside(animatedPlayer, step, 'up')) {
                     object.posy -= step;
                     ctx.drawImage(object.imagen, coordinatesUpMovement[i][0], coordinatesUpMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
                 }
@@ -209,7 +236,7 @@ const drawDirection = (object, step, direction) => {
                     ctx.drawImage(object.imagen, coordinatesDownMovement[i][0], coordinatesDownMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
                 }
             } else if (direction == 'izquierda') {
-                if (!collide(animatedPlayer, apex, 'left', step)) {
+                if (!collide(animatedPlayer, apex, 'left', step) && checkOutside(animatedPlayer, step, 'left')) {
                     object.posx -= step;    
                     ctx.drawImage(object.imagen, coordinatesLeftMovement[i][0], coordinatesLeftMovement[i][1], object.sourcewidth, object.sourceheight, object.posx, object.posy, object.width, object.height);
                 }
@@ -228,14 +255,17 @@ const drawDirection = (object, step, direction) => {
 const constructLevel = () => {
     drawBG();
     drawObstacles(canvas, obstacle, coordinatesWalls);
+    mortyPlayer.posx = canvas.width - obstacle.width;
+    ctx.drawImage(mortyPlayer.imagen, mortyPlayer.ximage, mortyPlayer.yimage, mortyPlayer.width, mortyPlayer.height, mortyPlayer.posx,  mortyPlayer.posy, mortyPlayer.finalwidth, mortyPlayer.finalheight)
 }
 
 setTimeout(() => {
     fix_dpi();
-    constructLevel();
     updateApex(animatedPlayer);
     animatedPlayer.posy = canvas.height - animatedPlayer.height - 10;
+    mortyPlayer.posy = 5;
+    constructLevel();
     ctx.drawImage(animatedPlayer.imagen, coordinatesInitMovement[0], coordinatesInitMovement[1], animatedPlayer.sourcewidth, animatedPlayer.sourceheight, animatedPlayer.posx, animatedPlayer.posy, animatedPlayer.width, animatedPlayer.height);
     getApex(obstacle);
     document.addEventListener("keydown", dibujar);
-}, 0)
+}, 60)

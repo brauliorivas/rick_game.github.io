@@ -1,0 +1,64 @@
+html {
+    width: 100%;
+    background-color: #2c91e3;
+    color: white;
+}
+
+body {
+    width: 100%;
+    font-family: "Helvetica";
+    margin: 0;
+    background: rgb(110,102,223);
+    background: linear-gradient(180deg, rgba(110,102,223,1) 0%, rgba(44,145,227,1) 100%);
+}
+
+h1 {
+    margin-left: 30px;
+    margin-top: 0px;
+    padding-top: 20px;
+}
+
+h2 {
+    text-align: center;
+}
+
+section p {
+    text-align: center;
+}
+#cards {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.player-option {
+    display: flex;
+    flex-direction: column;
+    width: 300px; 
+    text-align: center;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    height: 330px;
+    border-radius: 10px;
+}
+
+.player-option h3 {
+    font-size: 25px;
+}
+
+.player-option img {
+    align-self: center;
+}
+
+.player-option a {
+    text-decoration: none;
+    align-self: center;
+    margin-top: 8%;
+    color: black;
+    font-weight: bolder;
+    width: 100px;
+    border: 2px solid black;
+    border-radius: 15px;
+    padding: 20px 10px 20px;
+    background-color: yellow;;
+}
